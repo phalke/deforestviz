@@ -34,19 +34,21 @@ parser.add_argument('--alert_path', help='Path to the alert folder', required=Tr
 parser.add_argument('--alertDate_path', help='Path to the alertDate folder', required=True)
 parser.add_argument('--max_zoom', help='Maximum zoom level to generete', required=True)
 args = vars(parser.parse_args())
+try:
+    # parse max_zoom arg to int
+    zoomlevel = int(args['max_zoom'])
+except Exception as e:
+    raise Exception(e)
 
 dirs = [args['alert_path'], args['alertDate_path']]
 for filesDir in dirs:
-    for fileName in os.listdir(filesDir):
+    filesNames = os.listdir(filesDir)
+    for i, fileName in enumerate(filesNames):
         tiff_file = f'{filesDir}/{fileName}'
-        try:
-            zoomlevel = int(args['max_zoom'])
-        except Exception as e:
-           raise Exception(e)
         with rio.open(tiff_file, 'r') as dataset:
             lat, lon, latmax, lonmax = dataset.bounds.left, dataset.bounds.bottom, dataset.bounds.right, dataset.bounds.top
             for tz in range(zoomlevel+1):
-                print(tz)
+                print(f"{i+1}/{len(filesNames)} - zoom:{tz}")
                 t0x, t0y = LatLonToTileIndex(lon, lat, tz)
                 t1x, t1y = LatLonToTileIndex(lonmax, latmax, tz)
                 tminx, tminy = min(t0x, t1x), min(t0y, t1y)
@@ -76,19 +78,21 @@ for filesDir in dirs:
                             ((0, 0), (255, 255))
                         )
 
-                        # Find the intersection of data and the tile and
-                        # map it the area [p0, p1]
+                        '''
+                        Find the intersection of data and the tile and map it the area [p0, p1]
+                        '''
+                        # the box coordinate to crop from the original dataset
+                        w0_x, w0_y, w1_x, w1_y = getIntersection(
+                            ((minX, minY), (maxX, maxY)),
+                            ((0, 0), (dataset.height, dataset.width))
+                        )
+                        # the target box coordinates where to map the cropped box.
                         p0_x, p0_y, p1_x, p1_y = getIntersection(
                             ((p0_x, p0_y), (p1_x, p1_y)),
                             ((0, 0), (255, 255))
                         )
 
-                        w0_x, w0_y, w1_x, w1_y = getIntersection(
-                            ((minX, minY), (maxX, maxY)),
-                            ((0, 0), (dataset.height, dataset.width))
-                        )
-
-		    # Load data from file
+		                # Load data from file
                         data = dataset.read(
                             window=((w0_x,w1_x), (w0_y, w1_y)),
                             out_shape=(p1_x - p0_x, p1_y - p0_y),

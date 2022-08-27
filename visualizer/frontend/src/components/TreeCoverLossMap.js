@@ -24,6 +24,10 @@ function TreeCoverLossMap() {
   const map = useRef(null);
 
   const handleSelect = (date) => {
+    /**
+     * Reformate the picked dates, and update the url used by the
+     * leaflet to download the tiles.
+     */
     setStartDate(date.selection.startDate);
     setEndDate(date.selection.endDate);
     const sy = date.selection.startDate.getFullYear();
@@ -97,6 +101,7 @@ function TreeCoverLossMap() {
             </div>
           </div>
         </div>
+
         {/* Map */}
         <div id="map">
           <MapContainer
@@ -109,18 +114,23 @@ function TreeCoverLossMap() {
             maxNativeZoom={18}
             maxZoom={22}
           >
+            {/* render maptiler heybrid map */}
             <TileLayer
               attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
               url="https://api.maptiler.com/maps/hybrid/256/{z}/{x}/{y}.jpg?key=XsGumaIy0N9p07zByHNB"
             />
+
+            {/* render our processed tiles with a checkbox to show/hide the tiles layer */}
             <LayersControl>
               <LayersControl.Overlay
                 checked
-                name="Script generated tile images"
+                name="Script generated tiles images"
               >
                 <TileLayer url={url} ref={map} />
               </LayersControl.Overlay>
             </LayersControl>
+
+            {/* Render the info divs legend and level */}
             <Legend />
             <Level val={zoom} />
           </MapContainer>
