@@ -1,0 +1,54 @@
+ /* basic reset of styling */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.custom-year-range-picker .yrp-picker-box {
+  border-radius: 20px;
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.custom-year-range-picker .yrp-picker-box span {
+  color: #fff;
+}
+
+.custom-year-range-picker .yrp-picker-box i {
+  border-color: #fff;
+}
+
+.info {
+  padding: 6px 8px;
+  font: 14px/16px Arial, Helvetica, sans-serif;
+  background: white;
+  border-radius: 5px;
+}
+
+.legend {
+  text-align: left;
+  line-height: 18px;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+}
+
+.level {
+  font-size: 18px;
+}
+
+.legend-element {
+  display: flex;
+  flex-direction: row;
+}
+.legend-color {
+  width: 30px;
+  height: 15px;
+  border-radius: 25px;
+  margin: 5px;
+}
+
+.legend-description{
+  display: flex;
+  align-items: center;
+}

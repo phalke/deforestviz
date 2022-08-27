@@ -1,0 +1,2899 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "GFW Tile Cache API",
+    "description": "Use GFW Tile Cache to retrieve vector and raster tiles.",
+    "version": "0.1.0",
+    "x-logo": {
+      "url": "/static/gfw-tile-cache.png"
+    }
+  },
+  "paths": {
+    "/nasa_viirs_fire_alerts/{version}/dynamic/{z}/{x}/{y}.pbf": {
+      "get": {
+        "tags": [
+          "Dynamic Vector Tiles"
+        ],
+        "summary": "Nasa Viirs Fire Alerts Tile",
+        "description": "NASA VIIRS fire alerts vector tiles.\nThis dataset holds the full archive of NASA VIIRS fire alerts, starting in 2012. Latest version is updated daily.\nCheck `Max Date` endpoint to retrieve latest date in dataset.\nYou can query fire alerts for any time period of up to 90 days. By default, the last 7 days are displayed.\nUse additional query parameters to further filter alerts.\nVector tiles for zoom level 6 and lower will aggregate adjacent alerts into a single point.",
+        "operationId": "nasa_viirs_fire_alerts_tile_nasa_viirs_fire_alerts__version__dynamic__z___x___y__pbf_get",
+        "parameters": [
+          {
+            "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/NasaViirsVersions"
+                }
+              ],
+              "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row (integer >= 0) and optional scale factor (either @2x, @0.5x or @0.25x)",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "pattern": "^\\d+(@(2|0.5|0.25)x)?$",
+                  "type": "string"
+                }
+              ],
+              "description": "Tile grid row (integer >= 0) and optional scale factor (either @2x, @0.5x or @0.25x)"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Only show fire alerts within selected geostore area",
+            "required": false,
+            "schema": {
+              "title": "Geostore Id",
+              "type": "string",
+              "description": "Only show fire alerts within selected geostore area",
+              "format": "uuid"
+            },
+            "name": "geostore_id",
+            "in": "query"
+          },
+          {
+            "description": "Origin service of geostore ID",
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/GeostoreOrigin"
+                }
+              ],
+              "description": "Origin service of geostore ID",
+              "default": "gfw"
+            },
+            "name": "geostore_origin",
+            "in": "query"
+          },
+          {
+            "description": "Only show alerts for given date and after",
+            "required": false,
+            "schema": {
+              "title": "Start Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts for given date and after",
+              "default": "2022-04-18"
+            },
+            "name": "start_date",
+            "in": "query"
+          },
+          {
+            "description": "Only show alerts until given date. End date cannot be in the future.",
+            "required": false,
+            "schema": {
+              "title": "End Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts until given date. End date cannot be in the future.",
+              "default": "2022-04-25"
+            },
+            "name": "end_date",
+            "in": "query"
+          },
+          {
+            "description": "Bypass the build in limitation to query more than 90 days at a time. Use cautiously!",
+            "required": false,
+            "schema": {
+              "title": "Force Date Range",
+              "type": "boolean",
+              "description": "Bypass the build in limitation to query more than 90 days at a time. Use cautiously!",
+              "default": false
+            },
+            "name": "force_date_range",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show high confidence alerts",
+              "type": "boolean",
+              "default": false
+            },
+            "name": "high_confidence_only",
+            "in": "query"
+          },
+          {
+            "description": "Select which attributes to include in vector tile. Will always show attribute count. Documentation list available attributes of latest version. For legacy version please check data-api for available attribute values.",
+            "required": false,
+            "schema": {
+              "title": "Included Attributes",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Attributes"
+              },
+              "description": "Select which attributes to include in vector tile. Will always show attribute count. Documentation list available attributes of latest version. For legacy version please check data-api for available attribute values.",
+              "default": [
+                "frp__MW"
+              ]
+            },
+            "name": "include_attribute",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside regional primary forests",
+              "type": "boolean"
+            },
+            "name": "is__regional_primary_forest",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside alliance for zero extinction sites",
+              "type": "boolean"
+            },
+            "name": "is__alliance_for_zero_extinction_site",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside key biodiversity areas",
+              "type": "boolean"
+            },
+            "name": "is__key_biodiversity_area",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside landmark land right areas",
+              "type": "boolean"
+            },
+            "name": "is__landmark",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside selected GFW plantation types",
+              "type": "string"
+            },
+            "name": "gfw_plantation__type",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside mining permits",
+              "type": "boolean"
+            },
+            "name": "is__gfw_mining",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside managed forests",
+              "type": "boolean"
+            },
+            "name": "is__gfw_logging",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside areas with selected rspo oil palm status",
+              "type": "string"
+            },
+            "name": "rspo_oil_palm__certification_status",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside wood fiber concessions",
+              "type": "boolean"
+            },
+            "name": "is__gfw_wood_fiber",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside peat land",
+              "type": "boolean"
+            },
+            "name": "is__peat_land",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside indonesia forest moratorium areas",
+              "type": "boolean"
+            },
+            "name": "is__idn_forest_moratorium",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside oil palm concessions",
+              "type": "boolean"
+            },
+            "name": "is__gfw_oil_palm",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside selected forest area type in Indonesia",
+              "type": "string"
+            },
+            "name": "idn_forest_area__type",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside selected forest concessions type in Peru",
+              "type": "string"
+            },
+            "name": "per_forest_concession__type",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside oil and gas concessions",
+              "type": "boolean"
+            },
+            "name": "is__gfw_oil_gas",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside 2016 mangrove extent",
+              "type": "boolean"
+            },
+            "name": "is__mangroves_2016",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside 2016 intact forest landscape extent",
+              "type": "boolean"
+            },
+            "name": "is__intact_forest_landscapes_2016",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Only show alerts inside selected biome in Brazil",
+              "type": "string"
+            },
+            "name": "bra_biome__name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PBF Vector Tile",
+            "content": {
+              "application/x-protobuf": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nasa_viirs_fire_alerts/{version}/max_alert__date": {
+      "get": {
+        "tags": [
+          "Dynamic Vector Tiles"
+        ],
+        "summary": "Max Date",
+        "description": "Retrieve max alert date for NASA VIIRS fire alerts for a given version",
+        "operationId": "max_date_nasa_viirs_fire_alerts__version__max_alert__date_get",
+        "parameters": [
+          {
+            "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/NasaViirsVersions"
+                }
+              ],
+              "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Max alert date in selected dataset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaxDateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/umd_modis_burned_areas/{version}/dynamic/{z}/{x}/{y}.pbf": {
+      "get": {
+        "tags": [
+          "Dynamic Vector Tiles"
+        ],
+        "summary": "Umd Modis Burned Areas Tile",
+        "operationId": "umd_modis_burned_areas_tile_umd_modis_burned_areas__version__dynamic__z___x___y__pbf_get",
+        "parameters": [
+          {
+            "description": "MODIS burned areas versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/UmdModisBurnedAreas"
+                }
+              ],
+              "description": "MODIS burned areas versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row (integer >= 0) and optional scale factor (either @2x, @0.5x or @0.25x)",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "pattern": "^\\d+(@(2|0.5|0.25)x)?$",
+                  "type": "string"
+                }
+              ],
+              "description": "Tile grid row (integer >= 0) and optional scale factor (either @2x, @0.5x or @0.25x)"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Only show fire alerts within selected geostore area",
+            "required": false,
+            "schema": {
+              "title": "Geostore Id",
+              "type": "string",
+              "description": "Only show fire alerts within selected geostore area",
+              "format": "uuid"
+            },
+            "name": "geostore_id",
+            "in": "query"
+          },
+          {
+            "description": "Origin service of geostore ID",
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/GeostoreOrigin"
+                }
+              ],
+              "description": "Origin service of geostore ID",
+              "default": "gfw"
+            },
+            "name": "geostore_origin",
+            "in": "query"
+          },
+          {
+            "description": "Only show alerts for given date and after",
+            "required": false,
+            "schema": {
+              "title": "Start Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts for given date and after",
+              "default": "2022-01-25"
+            },
+            "name": "start_date",
+            "in": "query"
+          },
+          {
+            "description": "Only show alerts until given date. End date cannot be in the future.",
+            "required": false,
+            "schema": {
+              "title": "End Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts until given date. End date cannot be in the future.",
+              "default": "2022-04-25"
+            },
+            "name": "end_date",
+            "in": "query"
+          },
+          {
+            "description": "Bypass the build in limitation to query more than 90 days at a time. Use cautiously!",
+            "required": false,
+            "schema": {
+              "title": "Force Date Range",
+              "type": "boolean",
+              "description": "Bypass the build in limitation to query more than 90 days at a time. Use cautiously!",
+              "default": false
+            },
+            "name": "force_date_range",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PBF Vector Tile",
+            "content": {
+              "application/x-protobuf": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{dataset}/{version}/dynamic/{z}/{x}/{y}.pbf": {
+      "get": {
+        "tags": [
+          "Dynamic Vector Tiles"
+        ],
+        "summary": "Dynamic Vector Tile",
+        "description": "Generic dynamic vector tile",
+        "operationId": "dynamic_vector_tile__dataset___version__dynamic__z___x___y__pbf_get",
+        "parameters": [
+          {
+            "description": "Dynamic vector tile cache datasets",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/DynamicVectorTileCacheDatasets"
+                }
+              ],
+              "description": "Dynamic vector tile cache datasets"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "pattern": "^v\\d{1,8}(\\.\\d{1,3}){0,2}?$|^latest$",
+              "type": "string",
+              "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row (integer >= 0) and optional scale factor (either @2x, @0.5x or @0.25x)",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "pattern": "^\\d+(@(2|0.5|0.25)x)?$",
+                  "type": "string"
+                }
+              ],
+              "description": "Tile grid row (integer >= 0) and optional scale factor (either @2x, @0.5x or @0.25x)"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Only show fire alerts within selected geostore area. Use RW geostore as of now.",
+            "required": false,
+            "schema": {
+              "title": "Geostore Id",
+              "type": "string",
+              "description": "Only show fire alerts within selected geostore area. Use RW geostore as of now.",
+              "format": "uuid"
+            },
+            "name": "geostore_id",
+            "in": "query"
+          },
+          {
+            "description": "Origin service of geostore ID",
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/GeostoreOrigin"
+                }
+              ],
+              "description": "Origin service of geostore ID",
+              "default": "gfw"
+            },
+            "name": "geostore_origin",
+            "in": "query"
+          },
+          {
+            "description": "Select which attributes to include in vector tile.Please check data-api for available attribute values.If not specified, all attributes will be shown.",
+            "required": false,
+            "schema": {
+              "title": "Included Attributes",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Select which attributes to include in vector tile.Please check data-api for available attribute values.If not specified, all attributes will be shown."
+            },
+            "name": "include_attribute",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PBF Vector Tile",
+            "content": {
+              "application/x-protobuf": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{dataset}/{version}/default/{z}/{x}/{y}.pbf": {
+      "get": {
+        "tags": [
+          "Vector Tiles"
+        ],
+        "summary": "Vector Tile",
+        "description": "Generic vector tile",
+        "operationId": "vector_tile__dataset___version__default__z___x___y__pbf_get",
+        "parameters": [
+          {
+            "description": "Static vector tile cache datasets",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/StaticVectorTileCacheDatasets"
+                }
+              ],
+              "description": "Static vector tile cache datasets"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "pattern": "^v\\d{1,8}(\\.\\d{1,3}){0,2}?$|^latest$",
+              "type": "string",
+              "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row (integer >= 0) and optional scale factor (either @2x, @0.5x or @0.25x)",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "pattern": "^\\d+(@(2|0.5|0.25)x)?$",
+                  "type": "string"
+                }
+              ],
+              "description": "Tile grid row (integer >= 0) and optional scale factor (either @2x, @0.5x or @0.25x)"
+            },
+            "name": "y",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PBF Vector Tile",
+            "content": {
+              "application/x-protobuf": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/umd_tree_cover_loss/{version}/dynamic/{z}/{x}/{y}.png": {
+      "get": {
+        "tags": [
+          "Raster Tiles"
+        ],
+        "summary": "Umd Tree Cover Loss Raster Tile",
+        "description": "UMD tree cover loss raster tile.",
+        "operationId": "umd_tree_cover_loss_raster_tile_umd_tree_cover_loss__version__dynamic__z___x___y__png_get",
+        "parameters": [
+          {
+            "description": "UMD Tree Cover Loss versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/UmdTclVersions"
+                }
+              ],
+              "description": "UMD Tree Cover Loss versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid row"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Start Year.",
+            "required": false,
+            "schema": {
+              "title": "Start Year",
+              "maximum": 2021.0,
+              "minimum": 2000.0,
+              "type": "integer",
+              "description": "Start Year."
+            },
+            "name": "start_year",
+            "in": "query"
+          },
+          {
+            "description": "End Year.",
+            "required": false,
+            "schema": {
+              "title": "End Year",
+              "maximum": 2021.0,
+              "minimum": 2000.0,
+              "type": "integer",
+              "description": "End Year."
+            },
+            "name": "end_year",
+            "in": "query"
+          },
+          {
+            "description": "Tree Cover Density threshold.",
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/TcdEnum"
+                }
+              ],
+              "description": "Tree Cover Density threshold.",
+              "default": "30"
+            },
+            "name": "tcd",
+            "in": "query"
+          },
+          {
+            "description": "Predefined WMTS style. This query parameter is mutually exclusive to all other query parameters.",
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/TcdStyleEnum"
+                }
+              ],
+              "description": "Predefined WMTS style. This query parameter is mutually exclusive to all other query parameters."
+            },
+            "name": "style",
+            "in": "query"
+          },
+          {
+            "description": "Tile cache implementation name for which dynamic tile should be rendered. This query parameter is mutually exclusive to all other query parameters. If set other parameters will be ignored.",
+            "required": false,
+            "schema": {
+              "title": "Implementation",
+              "type": "string",
+              "description": "Tile cache implementation name for which dynamic tile should be rendered. This query parameter is mutually exclusive to all other query parameters. If set other parameters will be ignored."
+            },
+            "name": "implementation",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG Raster Tile"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/umd_glad_landsat_alerts/{version}/dynamic/{z}/{x}/{y}.png": {
+      "get": {
+        "tags": [
+          "Raster Tiles"
+        ],
+        "summary": "Umd Glad Alerts Raster Tile",
+        "description": "UMD GLAD Landsat alerts raster tiles.",
+        "operationId": "umd_glad_alerts_raster_tile_umd_glad_landsat_alerts__version__dynamic__z___x___y__png_get",
+        "parameters": [
+          {
+            "description": "UMD Glad Landsat Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/UmdGladLandsatVersions"
+                }
+              ],
+              "description": "UMD Glad Landsat Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid row"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Only show alerts for given date and after",
+            "required": false,
+            "schema": {
+              "title": "Start Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts for given date and after"
+            },
+            "name": "start_date",
+            "in": "query"
+          },
+          {
+            "description": "Only show alerts until given date.",
+            "required": false,
+            "schema": {
+              "title": "End Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts until given date."
+            },
+            "name": "end_date",
+            "in": "query"
+          },
+          {
+            "description": "Only show confirmed alerts",
+            "required": false,
+            "schema": {
+              "title": "Confirmed Only",
+              "type": "boolean",
+              "description": "Only show confirmed alerts"
+            },
+            "name": "confirmed_only",
+            "in": "query"
+          },
+          {
+            "description": "Tile cache implementation name for which dynamic tile should be rendered. This query parameter is mutually exclusive to all other query parameters. If set other parameters will be ignored.",
+            "required": false,
+            "schema": {
+              "title": "Implementation",
+              "type": "string",
+              "description": "Tile cache implementation name for which dynamic tile should be rendered. This query parameter is mutually exclusive to all other query parameters. If set other parameters will be ignored."
+            },
+            "name": "implementation",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG Raster Tile"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/umd_glad_sentinel2_alerts/{version}/dynamic/{z}/{x}/{y}.png": {
+      "get": {
+        "tags": [
+          "Raster Tiles"
+        ],
+        "summary": "Umd Glad Sentinel2 Alerts Raster Tile",
+        "description": "UMD GLAD Sentinel 2 alerts raster tiles.",
+        "operationId": "umd_glad_sentinel2_alerts_raster_tile_umd_glad_sentinel2_alerts__version__dynamic__z___x___y__png_get",
+        "parameters": [
+          {
+            "description": "UMD Glad Sentinel 2 Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/UmdGladSentinel2Versions"
+                }
+              ],
+              "description": "UMD Glad Sentinel 2 Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid row"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Only show alerts for given date and after",
+            "required": false,
+            "schema": {
+              "title": "Start Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts for given date and after"
+            },
+            "name": "start_date",
+            "in": "query"
+          },
+          {
+            "description": "Only show alerts until given date.",
+            "required": false,
+            "schema": {
+              "title": "End Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts until given date."
+            },
+            "name": "end_date",
+            "in": "query"
+          },
+          {
+            "description": "Only show confirmed alerts",
+            "required": false,
+            "schema": {
+              "title": "Confirmed Only",
+              "type": "boolean",
+              "description": "Only show confirmed alerts"
+            },
+            "name": "confirmed_only",
+            "in": "query"
+          },
+          {
+            "description": "Tile cache implementation name for which dynamic tile should be rendered. This query parameter is mutually exclusive to all other query parameters. If set other parameters will be ignored.",
+            "required": false,
+            "schema": {
+              "title": "Implementation",
+              "type": "string",
+              "description": "Tile cache implementation name for which dynamic tile should be rendered. This query parameter is mutually exclusive to all other query parameters. If set other parameters will be ignored."
+            },
+            "name": "implementation",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG Raster Tile"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/wur_radd_alerts/{version}/dynamic/{z}/{x}/{y}.png": {
+      "get": {
+        "tags": [
+          "Raster Tiles"
+        ],
+        "summary": "Wur Radd Alerts Raster Tile",
+        "description": "WUR RADD alerts raster tiles.",
+        "operationId": "wur_radd_alerts_raster_tile_wur_radd_alerts__version__dynamic__z___x___y__png_get",
+        "parameters": [
+          {
+            "description": "WUR RADD Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/WurRaddVersions"
+                }
+              ],
+              "description": "WUR RADD Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid row"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Only show alerts for given date and after",
+            "required": false,
+            "schema": {
+              "title": "Start Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts for given date and after"
+            },
+            "name": "start_date",
+            "in": "query"
+          },
+          {
+            "description": "Only show alerts until given date.",
+            "required": false,
+            "schema": {
+              "title": "End Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts until given date."
+            },
+            "name": "end_date",
+            "in": "query"
+          },
+          {
+            "description": "Only show confirmed alerts",
+            "required": false,
+            "schema": {
+              "title": "Confirmed Only",
+              "type": "boolean",
+              "description": "Only show confirmed alerts"
+            },
+            "name": "confirmed_only",
+            "in": "query"
+          },
+          {
+            "description": "Tile cache implementation name for which dynamic tile should be rendered. This query parameter is mutually exclusive to all other query parameters. If set other parameters will be ignored.",
+            "required": false,
+            "schema": {
+              "title": "Implementation",
+              "type": "string",
+              "description": "Tile cache implementation name for which dynamic tile should be rendered. This query parameter is mutually exclusive to all other query parameters. If set other parameters will be ignored."
+            },
+            "name": "implementation",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG Raster Tile"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/planet/v1/planet_medres_normalized_analytic/{z}/{x}/{y}.png": {
+      "get": {
+        "tags": [
+          "Raster Tiles"
+        ],
+        "summary": "Planet Raster Tile",
+        "description": "A proxy for Planet Mosaic Tiles",
+        "operationId": "planet_raster_tile_planet_v1_planet_medres_normalized_analytic__z___x___y__png_get",
+        "parameters": [
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid row"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Available date ranges of Planet Mosaics",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PlanetDateRange"
+                }
+              ],
+              "description": "Available date ranges of Planet Mosaics"
+            },
+            "name": "date_range",
+            "in": "query"
+          },
+          {
+            "description": "Image mode. `rgb`=Red|Gree|Blue, `cir` = Close Infra Red|Red|Green",
+            "required": false,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PlanetImageMode"
+                }
+              ],
+              "description": "Image mode. `rgb`=Red|Gree|Blue, `cir` = Close Infra Red|Red|Green",
+              "default": "rgb"
+            },
+            "name": "proc",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG Raster Tile"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyOriginHeader": []
+          }
+        ]
+      }
+    },
+    "/{dataset}/{version}/dynamic/{z}/{x}/{y}.png": {
+      "get": {
+        "tags": [
+          "Raster Tiles"
+        ],
+        "summary": "Dynamic Raster Tile",
+        "description": "Generic raster tile.",
+        "operationId": "dynamic_raster_tile__dataset___version__dynamic__z___x___y__png_get",
+        "parameters": [
+          {
+            "description": "Raster tile cache datasets",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RasterTileCacheDatasets"
+                }
+              ],
+              "description": "Raster tile cache datasets"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "pattern": "^v\\d{1,8}(\\.\\d{1,3}){0,2}?$|^latest$",
+              "type": "string",
+              "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid row"
+            },
+            "name": "y",
+            "in": "path"
+          },
+          {
+            "description": "Tile cache implementation name for which dynamic tile should be rendered.",
+            "required": false,
+            "schema": {
+              "title": "Implementation",
+              "type": "string",
+              "description": "Tile cache implementation name for which dynamic tile should be rendered.",
+              "default": "default"
+            },
+            "name": "implementation",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG Raster Tile"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{dataset}/{version}/{implementation}/{z}/{x}/{y}.png": {
+      "get": {
+        "tags": [
+          "Raster Tiles"
+        ],
+        "summary": "Static Raster Tile",
+        "description": "Generic raster tile.",
+        "operationId": "static_raster_tile__dataset___version___implementation___z___x___y__png_get",
+        "parameters": [
+          {
+            "description": "Tile cache implementation name.",
+            "required": true,
+            "schema": {
+              "title": "Implementation",
+              "type": "string",
+              "description": "Tile cache implementation name."
+            },
+            "name": "implementation",
+            "in": "path"
+          },
+          {
+            "description": "Raster tile cache datasets",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RasterTileCacheDatasets"
+                }
+              ],
+              "description": "Raster tile cache datasets"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "pattern": "^v\\d{1,8}(\\.\\d{1,3}){0,2}?$|^latest$",
+              "type": "string",
+              "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "description": "Zoom level",
+            "required": true,
+            "schema": {
+              "title": "Z",
+              "maximum": 22.0,
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Zoom level"
+            },
+            "name": "z",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid column",
+            "required": true,
+            "schema": {
+              "title": "X",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid column"
+            },
+            "name": "x",
+            "in": "path"
+          },
+          {
+            "description": "Tile grid row",
+            "required": true,
+            "schema": {
+              "title": "Y",
+              "minimum": 0.0,
+              "type": "integer",
+              "description": "Tile grid row"
+            },
+            "name": "y",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG Raster Tile"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{dataset}/{version}/{implementation}/wmts/1.0.0/WMTSCapabilities.xml": {
+      "get": {
+        "tags": [
+          "Raster Tiles"
+        ],
+        "summary": "Wmts",
+        "description": "WMTS Service using resource-oriented implementation.\n\nYou can point your WMTS client directly to this XML document to discover the tile service.",
+        "operationId": "wmts__dataset___version___implementation__wmts_1_0_0_WMTSCapabilities_xml_get",
+        "parameters": [
+          {
+            "description": "Tile Cache implementation",
+            "required": true,
+            "schema": {
+              "title": "Implementation",
+              "type": "string",
+              "description": "Tile Cache implementation"
+            },
+            "name": "implementation",
+            "in": "path"
+          },
+          {
+            "description": "Raster tile cache datasets",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RasterTileCacheDatasets"
+                }
+              ],
+              "description": "Raster tile cache datasets"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "pattern": "^v\\d{1,8}(\\.\\d{1,3}){0,2}?$|^latest$",
+              "type": "string",
+              "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nasa_viirs_fire_alerts/{version}/dynamic/{start_date}/{end_date}/VectorTileServer": {
+      "get": {
+        "tags": [
+          "ESRI Vector Tile Service"
+        ],
+        "summary": "Nasa Viirs Fire Alerts Esri Vector Tile Service Dates",
+        "description": "Mock ESRI Vector Tile Server for NASA VIIRS fire alerts.\nWhen using ESRI JS API, point your root.json to this URL.\nURL Parameters will be forwarded to tile cache.",
+        "operationId": "nasa_viirs_fire_alerts_esri_vector_tile_service_dates_nasa_viirs_fire_alerts__version__dynamic__start_date___end_date__VectorTileServer_get",
+        "parameters": [
+          {
+            "description": "Only show alerts for given date and after",
+            "required": true,
+            "schema": {
+              "title": "Start Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts for given date and after"
+            },
+            "name": "start_date",
+            "in": "path"
+          },
+          {
+            "description": "Only show alerts until given date.",
+            "required": true,
+            "schema": {
+              "title": "End Date",
+              "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+              "type": "string",
+              "description": "Only show alerts until given date."
+            },
+            "name": "end_date",
+            "in": "path"
+          },
+          {
+            "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/NasaViirsVersions"
+                }
+              ],
+              "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VectorTileService"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nasa_viirs_fire_alerts/{version}/dynamic/VectorTileServer": {
+      "get": {
+        "tags": [
+          "ESRI Vector Tile Service"
+        ],
+        "summary": "Nasa Viirs Fire Alerts Esri Vector Tile Service",
+        "description": "Mock ESRI Vector Tile Server for NASA VIIRS fire alerts.\nWhen using ESRI JS API, point your root.json to this URL.\nURL Parameters will be forwarded to tile cache.",
+        "operationId": "nasa_viirs_fire_alerts_esri_vector_tile_service_nasa_viirs_fire_alerts__version__dynamic_VectorTileServer_get",
+        "parameters": [
+          {
+            "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/NasaViirsVersions"
+                }
+              ],
+              "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VectorTileService"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{dataset}/{version}/dynamic/VectorTileServer": {
+      "get": {
+        "tags": [
+          "ESRI Vector Tile Service"
+        ],
+        "summary": "Dynamic Esri Vector Tile Service",
+        "description": "Generic Mock ESRI Vector Tile Server.\nWhen using ESRI JS API, point your root.json to this URL.\nURL Parameters will be forwarded to tile cache.",
+        "operationId": "dynamic_esri_vector_tile_service__dataset___version__dynamic_VectorTileServer_get",
+        "parameters": [
+          {
+            "description": "Dynamic vector tile cache datasets",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/DynamicVectorTileCacheDatasets"
+                }
+              ],
+              "description": "Dynamic vector tile cache datasets"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "pattern": "^v\\d{1,8}(\\.\\d{1,3}){0,2}?$|^latest$",
+              "type": "string",
+              "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "title": "Geostore Id",
+              "type": "string"
+            },
+            "name": "geostore_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VectorTileService"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{dataset}/{version}/default/VectorTileServer": {
+      "get": {
+        "tags": [
+          "ESRI Vector Tile Service"
+        ],
+        "summary": "Esri Vector Tile Service",
+        "description": "Generic Mock ESRI Vector Tile Server.\nWhen using ESRI JS API, point your root.json to this URL.\nURL Parameters will be forwarded to tile cache.",
+        "operationId": "esri_vector_tile_service__dataset___version__default_VectorTileServer_get",
+        "parameters": [
+          {
+            "description": "Static vector tile cache datasets",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/StaticVectorTileCacheDatasets"
+                }
+              ],
+              "description": "Static vector tile cache datasets"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "pattern": "^v\\d{1,8}(\\.\\d{1,3}){0,2}?$|^latest$",
+              "type": "string",
+              "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VectorTileService"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{dataset}/{version}/default/root.json": {
+      "get": {
+        "tags": [
+          "ESRI Vector Tile Service"
+        ],
+        "summary": "Esri Root Json",
+        "description": "ESRI root.json file with default layer style for use with ESRI JS API.",
+        "operationId": "esri_root_json__dataset___version__default_root_json_get",
+        "parameters": [
+          {
+            "description": "Static vector tile cache datasets",
+            "required": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/StaticVectorTileCacheDatasets"
+                }
+              ],
+              "description": "Static vector tile cache datasets"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest.",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "pattern": "^v\\d{1,8}(\\.\\d{1,3}){0,2}?$|^latest$",
+              "type": "string",
+              "description": "Version name of dataset. When using `latest` call will be redirected (307) to version tagged as latest."
+            },
+            "name": "version",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RootJson"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{dataset}/{version}/{implementation}/preview": {
+      "get": {
+        "tags": [
+          "Tile Cache Preview"
+        ],
+        "summary": "Get Tile Cache Preview",
+        "description": "Map preview of available tile caches for a dataset.",
+        "operationId": "get_tile_cache_preview__dataset___version___implementation__preview_get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "title": "Dataset",
+              "type": "string"
+            },
+            "name": "dataset",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "type": "string"
+            },
+            "name": "version",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "schema": {
+              "title": "Implementation"
+            },
+            "name": "implementation",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Attributes": {
+        "title": "Attributes",
+        "enum": [
+          "iso",
+          "adm1",
+          "adm2",
+          "longitude",
+          "latitude",
+          "alert__date",
+          "alert__time_utc",
+          "confidence__cat",
+          "bright_ti4__K",
+          "bright_ti5__K",
+          "frp__MW",
+          "wdpa_protected_area__iucn_cat",
+          "is__umd_regional_primary_forest_2001",
+          "is__birdlife_alliance_for_zero_extinction_site",
+          "is__birdlife_key_biodiversity_area",
+          "is__landmark_land_right",
+          "gfw_plantation__type",
+          "is__gfw_mining",
+          "is__gfw_managed_forest",
+          "rspo_oil_palm__certification_status",
+          "is__gfw_wood_fiber",
+          "is__peatland",
+          "is__idn_forest_moratorium",
+          "is__gfw_oil_palm",
+          "idn_forest_area__type",
+          "per_forest_concession__type",
+          "is__gfw_oil_gas",
+          "is__gmw_mangroves_2016",
+          "is__ifl_intact_forest_landscape_2016",
+          "bra_biome__name",
+          "alert__count",
+          "geom",
+          "geom_wm"
+        ],
+        "type": "string",
+        "description": "NASA VIIRS fire alerts attributes"
+      },
+      "CacheInfo": {
+        "title": "CacheInfo",
+        "required": [
+          "storageInfo"
+        ],
+        "type": "object",
+        "properties": {
+          "storageInfo": {
+            "$ref": "#/components/schemas/StorageInfo"
+          }
+        }
+      },
+      "DynamicVectorTileCacheDatasets": {
+        "title": "DynamicVectorTileCacheDatasets",
+        "enum": [
+          "wdpa_protected_areas",
+          "lbr_development_exploration_license",
+          "ifl_intact_forest_landscapes_2013",
+          "landmark_icls",
+          "ifl_intact_forest_landscapes_2000",
+          "osinfor_per_forest_concessions",
+          "intl_rivers_dam_hotspots",
+          "birdlife_endemic_bird_areas",
+          "ifl_intact_forest_landscapes_2016",
+          "gfw_land_rights",
+          "idn_wood_fiber",
+          "gfw_logging_download",
+          "gfw_universal_mill_list",
+          "wri_cmr_agro_industrial_zones",
+          "licadho_khm_economic_land_concessions",
+          "birdlife_alliance_for_zero_extinction_sites",
+          "icf_hnd_forest_type_2013",
+          "gfw_oil_gas",
+          "gmw_global_mangrove_extent_1996",
+          "umd_modis_burned_areas",
+          "gfw_mining_concessions",
+          "conafor_mex_forest_zoning",
+          "lbr_mineral_exploration_license",
+          "ifl_intact_forest_landscapes_2020",
+          "umd_glad_landsat_alerts_coverage",
+          "icmbio_bra_federal_protected_areas",
+          "khm_protected_areas",
+          "inpe_prodes",
+          "gfw_managed_forests",
+          "ibge_bra_biomes",
+          "gfw_wood_fiber_downloadable",
+          "gfwpro_forest_change_regions",
+          "ci_biodiversity_hotspots",
+          "osinfor_peru_permanent_production_forests",
+          "lbr_mineral_development_agreement",
+          "landmark_indigenous_and_community_lands",
+          "usa_conservation_easements",
+          "gfw_plantations",
+          "gfw_wood_fiber",
+          "haka_idn_leuser",
+          "gfw_emerging_hot_spots",
+          "per_forest_concessions",
+          "wwf_terrestrial_ecoregions",
+          "gfw_planted_forests",
+          "per_protected_areas",
+          "gfw_logging",
+          "wwf_tiger_conservation_landscapes",
+          "gfw_oil_palm",
+          "gfw_resource_rights",
+          "fao_ecozones",
+          "rspo_oil_palm",
+          "ifl_intact_forest_landscapes",
+          "birdlife_key_biodiversity_areas",
+          "mapbox_river_basins",
+          "idn_forest_moratorium",
+          "inpe_amazonia_prodes",
+          "nasa_viirs_fire_alerts",
+          "idn_forest_area",
+          "gmw_global_mangrove_extent_2016"
+        ],
+        "type": "string",
+        "description": "Dynamic vector tile cache datasets"
+      },
+      "Extent": {
+        "title": "Extent",
+        "required": [
+          "xmin",
+          "ymin",
+          "xmax",
+          "ymax",
+          "spatialReference"
+        ],
+        "type": "object",
+        "properties": {
+          "xmin": {
+            "title": "Xmin",
+            "type": "number"
+          },
+          "ymin": {
+            "title": "Ymin",
+            "type": "number"
+          },
+          "xmax": {
+            "title": "Xmax",
+            "type": "number"
+          },
+          "ymax": {
+            "title": "Ymax",
+            "type": "number"
+          },
+          "spatialReference": {
+            "$ref": "#/components/schemas/SpatialReference"
+          }
+        }
+      },
+      "GeostoreOrigin": {
+        "title": "GeostoreOrigin",
+        "enum": [
+          "gfw",
+          "rw"
+        ],
+        "type": "string",
+        "description": "An enumeration."
+      },
+      "HTTPValidationError": {
+        "title": "HTTPValidationError",
+        "type": "object",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "LOD": {
+        "title": "LOD",
+        "required": [
+          "level",
+          "resolution",
+          "scale"
+        ],
+        "type": "object",
+        "properties": {
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "resolution": {
+            "title": "Resolution",
+            "type": "number"
+          },
+          "scale": {
+            "title": "Scale",
+            "type": "number"
+          }
+        }
+      },
+      "MaxDate": {
+        "title": "MaxDate",
+        "type": "object",
+        "properties": {
+          "max_date": {
+            "title": "Max Date",
+            "type": "string",
+            "format": "date",
+            "example": "2020-01-01"
+          }
+        }
+      },
+      "MaxDateResponse": {
+        "title": "MaxDateResponse",
+        "required": [
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/MaxDate"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "default": "success"
+          }
+        }
+      },
+      "NasaViirsVersions": {
+        "title": "NasaViirsVersions",
+        "enum": [
+          "latest",
+          "v202010",
+          "v202105.3",
+          "v202105.2"
+        ],
+        "type": "string",
+        "description": "NASA Viirs Fire Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+      },
+      "Origin": {
+        "title": "Origin",
+        "required": [
+          "x",
+          "y"
+        ],
+        "type": "object",
+        "properties": {
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          }
+        }
+      },
+      "PlanetDateRange": {
+        "title": "PlanetDateRange",
+        "enum": [
+          "2015-12_2016-05",
+          "2016-06_2016-11",
+          "2016-12_2017-05",
+          "2017-06_2017-11",
+          "2017-12_2018-05",
+          "2018-06_2018-11",
+          "2018-12_2019-05",
+          "2019-06_2019-11",
+          "2019-12_2020-05",
+          "2020-06_2020-08",
+          "2020-09",
+          "2020-10",
+          "2020-11",
+          "2020-12",
+          "2021-01",
+          "2021-02",
+          "2021-03",
+          "2021-04",
+          "2021-05",
+          "2021-06",
+          "2021-07",
+          "2021-08",
+          "2021-09",
+          "2021-10",
+          "2021-11",
+          "2021-12",
+          "2022-01",
+          "2022-02",
+          "2022-03",
+          "05",
+          "11",
+          "08",
+          ""
+        ],
+        "type": "string",
+        "description": "Available date ranges of Planet Mosaics"
+      },
+      "PlanetImageMode": {
+        "title": "PlanetImageMode",
+        "enum": [
+          "rgb",
+          "cir"
+        ],
+        "type": "string",
+        "description": "str(object='') -> str\nstr(bytes_or_buffer[, encoding[, errors]]) -> str\n\nCreate a new string object from the given object. If encoding or\nerrors is specified, then the object must expose a data buffer\nthat will be decoded using the given encoding and error handler.\nOtherwise, returns the result of object.__str__() (if defined)\nor repr(object).\nencoding defaults to sys.getdefaultencoding().\nerrors defaults to 'strict'."
+      },
+      "RasterTileCacheDatasets": {
+        "title": "RasterTileCacheDatasets",
+        "enum": [
+          "tropomi_avg_nitrogen_dioxide_last_month",
+          "clark_labs_tropical_pond_aquaculture_change_2014_2018",
+          "umd_soy_planted_area",
+          "wur_radd_coverage",
+          "rspo_southeast_asia_land_cover_2010",
+          "umd_tree_cover_loss",
+          "birdlife_biodiversity_significance",
+          "birdlife_biodiversity_intactness",
+          "umd_regional_primary_forest_2001",
+          "clark_labs_tropical_pond_aquaculture_2018",
+          "gfw_forest_carbon_net_flux",
+          "umd_glad_sentinel2_alerts",
+          "umd_tree_cover_density_2000",
+          "wri_trees_in_mosaic_landscapes",
+          "wur_radd_alerts",
+          "nexgddp_change_dry_spells_2000_2080",
+          "tsc_tree_cover_loss_drivers",
+          "wri_trees_in_mosaic_landscapes_coverage",
+          "clark_labs_tropical_pond_aquaculture_change_1999_2018",
+          "gfw_integrated_alerts",
+          "umd_glad_sentinel2_alerts_coverage",
+          "umd_tree_cover_gain",
+          "gfw_peatlands",
+          "umd_tree_cover_height_2000",
+          "wri_trees_in_complex_landscapes",
+          "clark_labs_tropical_pond_aquaculture_1999",
+          "gfw_forest_carbon_gross_removals",
+          "clark_labs_tropical_pond_aquaculture_change_1999_2014",
+          "clark_labs_tropical_pond_aquaculture_2014",
+          "dtu_wb_wind_speed_potential_2001_2010",
+          "umd_tree_cover_height_2020",
+          "birdlife_key_biodiversity_areas",
+          "gfw_forest_carbon_gross_emissions",
+          "gfw_radd_alerts",
+          "gfw_soil_carbon_stocks",
+          "wur_africa_radd_coverage",
+          "wcs_forest_landscape_integrity_index"
+        ],
+        "type": "string",
+        "description": "Raster tile cache datasets"
+      },
+      "ResourceInfo": {
+        "title": "ResourceInfo",
+        "required": [
+          "styleVersion",
+          "cacheInfo"
+        ],
+        "type": "object",
+        "properties": {
+          "styleVersion": {
+            "title": "Styleversion",
+            "type": "integer"
+          },
+          "tileCompression": {
+            "title": "Tilecompression",
+            "type": "string",
+            "example": "gzip"
+          },
+          "cacheInfo": {
+            "$ref": "#/components/schemas/CacheInfo"
+          }
+        }
+      },
+      "RootJson": {
+        "title": "RootJson",
+        "required": [
+          "version",
+          "sources",
+          "layers"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "sources": {
+            "title": "Sources",
+            "type": "object"
+          },
+          "layers": {
+            "title": "Layers",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "SpatialReference": {
+        "title": "SpatialReference",
+        "required": [
+          "wkid",
+          "latestWkid"
+        ],
+        "type": "object",
+        "properties": {
+          "wkid": {
+            "title": "Wkid",
+            "type": "integer"
+          },
+          "latestWkid": {
+            "title": "Latestwkid",
+            "type": "integer"
+          }
+        }
+      },
+      "StaticVectorTileCacheDatasets": {
+        "title": "StaticVectorTileCacheDatasets",
+        "enum": [
+          "wdpa_protected_areas",
+          "lbr_development_exploration_license",
+          "landmark_icls",
+          "intl_rivers_dam_hotspots",
+          "birdlife_endemic_bird_areas",
+          "gfw_logging_download",
+          "gfw_universal_mill_list",
+          "wri_cmr_agro_industrial_zones",
+          "licadho_khm_economic_land_concessions",
+          "birdlife_alliance_for_zero_extinction_sites",
+          "gfw_mining_concessions",
+          "umd_glad_landsat_alerts_coverage",
+          "khm_protected_areas",
+          "inpe_prodes",
+          "gfw_managed_forests",
+          "ibge_bra_biomes",
+          "osinfor_peru_permanent_production_forests",
+          "ci_biodiversity_hotspots",
+          "usa_conservation_easements",
+          "landmark_indigenous_and_community_lands",
+          "gfw_plantations",
+          "gfw_wood_fiber",
+          "gfw_emerging_hot_spots",
+          "wwf_terrestrial_ecoregions",
+          "gfw_planted_forests",
+          "gfw_logging",
+          "wwf_tiger_conservation_landscapes",
+          "gfw_oil_palm",
+          "rspo_oil_palm",
+          "ifl_intact_forest_landscapes",
+          "birdlife_key_biodiversity_areas",
+          "mapbox_river_basins",
+          "idn_forest_moratorium",
+          "inpe_amazonia_prodes",
+          "idn_forest_area",
+          "gmw_global_mangrove_extent_2016"
+        ],
+        "type": "string",
+        "description": "Static vector tile cache datasets"
+      },
+      "StorageInfo": {
+        "title": "StorageInfo",
+        "type": "object",
+        "properties": {
+          "packetSize": {
+            "title": "Packetsize",
+            "type": "integer",
+            "example": 128
+          },
+          "storageFormat": {
+            "title": "Storageformat",
+            "type": "string",
+            "example": "compactV2"
+          }
+        }
+      },
+      "TcdEnum": {
+        "title": "TcdEnum",
+        "enum": [
+          "10",
+          "15",
+          "20",
+          "25",
+          "30",
+          "50",
+          "75"
+        ],
+        "type": "string",
+        "description": "str(object='') -> str\nstr(bytes_or_buffer[, encoding[, errors]]) -> str\n\nCreate a new string object from the given object. If encoding or\nerrors is specified, then the object must expose a data buffer\nthat will be decoded using the given encoding and error handler.\nOtherwise, returns the result of object.__str__() (if defined)\nor repr(object).\nencoding defaults to sys.getdefaultencoding().\nerrors defaults to 'strict'."
+      },
+      "TcdStyleEnum": {
+        "title": "TcdStyleEnum",
+        "enum": [
+          "tcd_10",
+          "tcd_15",
+          "tcd_20",
+          "tcd_25",
+          "tcd_30",
+          "tcd_50",
+          "tcd_75"
+        ],
+        "type": "string",
+        "description": "str(object='') -> str\nstr(bytes_or_buffer[, encoding[, errors]]) -> str\n\nCreate a new string object from the given object. If encoding or\nerrors is specified, then the object must expose a data buffer\nthat will be decoded using the given encoding and error handler.\nOtherwise, returns the result of object.__str__() (if defined)\nor repr(object).\nencoding defaults to sys.getdefaultencoding().\nerrors defaults to 'strict'."
+      },
+      "TileInfo": {
+        "title": "TileInfo",
+        "required": [
+          "origin",
+          "spatialReference",
+          "lods"
+        ],
+        "type": "object",
+        "properties": {
+          "rows": {
+            "title": "Rows",
+            "type": "integer",
+            "example": 512
+          },
+          "cols": {
+            "title": "Cols",
+            "type": "integer",
+            "example": 512
+          },
+          "dpi": {
+            "title": "Dpi",
+            "type": "integer",
+            "example": 96
+          },
+          "format": {
+            "title": "Format",
+            "type": "string",
+            "example": "pbf"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Origin"
+          },
+          "spatialReference": {
+            "$ref": "#/components/schemas/SpatialReference"
+          },
+          "lods": {
+            "title": "Lods",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LOD"
+            }
+          }
+        }
+      },
+      "UmdGladLandsatVersions": {
+        "title": "UmdGladLandsatVersions",
+        "enum": [
+          "latest"
+        ],
+        "type": "string",
+        "description": "UMD Glad Landsat Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+      },
+      "UmdGladSentinel2Versions": {
+        "title": "UmdGladSentinel2Versions",
+        "enum": [
+          "latest",
+          "v20211001",
+          "v20210615",
+          "v20220307",
+          "v20210518.1",
+          "v20211229",
+          "v20210510",
+          "v20211219",
+          "v20210525",
+          "v20210901",
+          "v20220203",
+          "v20220110",
+          "v20211129",
+          "v20220116",
+          "v20210603",
+          "v20210707",
+          "v20220127",
+          "v20220121",
+          "v20211024",
+          "v20220220",
+          "v20210818",
+          "v20220204",
+          "v20220412",
+          "v20210923",
+          "v20211029",
+          "v20210629",
+          "v20220330",
+          "v20210427",
+          "v20210406",
+          "v20220223",
+          "v20210914",
+          "v20211210",
+          "v20211115",
+          "v20210728",
+          "v20210607",
+          "v20220322"
+        ],
+        "type": "string",
+        "description": "UMD Glad Sentinel 2 Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+      },
+      "UmdModisBurnedAreas": {
+        "title": "UmdModisBurnedAreas",
+        "enum": [
+          "latest",
+          "v20220129",
+          "v2021060"
+        ],
+        "type": "string",
+        "description": "MODIS burned areas versions. When using `latest` call will be redirected (307) to version tagged as latest."
+      },
+      "UmdTclVersions": {
+        "title": "UmdTclVersions",
+        "enum": [
+          "latest",
+          "v1.9",
+          "v1.9.1",
+          "v1.8"
+        ],
+        "type": "string",
+        "description": "UMD Tree Cover Loss versions. When using `latest` call will be redirected (307) to version tagged as latest."
+      },
+      "ValidationError": {
+        "title": "ValidationError",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "loc": {
+            "title": "Location",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        }
+      },
+      "VectorTileService": {
+        "title": "VectorTileService",
+        "required": [
+          "name",
+          "copyrightText",
+          "defaultStyles",
+          "initialExtent",
+          "fullExtent",
+          "minScale",
+          "maxScale",
+          "tileInfo",
+          "maxzoom",
+          "minLOD",
+          "maxLOD",
+          "resourceInfo",
+          "serviceItemId"
+        ],
+        "type": "object",
+        "properties": {
+          "currentVersion": {
+            "title": "Currentversion",
+            "type": "number",
+            "example": 10.7
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "copyrightText": {
+            "title": "Copyrighttext",
+            "type": "string"
+          },
+          "capabilities": {
+            "title": "Capabilities",
+            "type": "string",
+            "example": "TilesOnly"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string",
+            "example": "indexedVector"
+          },
+          "defaultStyles": {
+            "title": "Defaultstyles",
+            "type": "string"
+          },
+          "tiles": {
+            "title": "Tiles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "{z}/{x}/{y}.pbf?key=value"
+            ]
+          },
+          "exportTilesAllowed": {
+            "title": "Exporttilesallowed",
+            "type": "boolean",
+            "example": false
+          },
+          "initialExtent": {
+            "$ref": "#/components/schemas/Extent"
+          },
+          "fullExtent": {
+            "$ref": "#/components/schemas/Extent"
+          },
+          "minScale": {
+            "title": "Minscale",
+            "type": "integer"
+          },
+          "maxScale": {
+            "title": "Maxscale",
+            "type": "integer"
+          },
+          "tileInfo": {
+            "$ref": "#/components/schemas/TileInfo"
+          },
+          "maxzoom": {
+            "title": "Maxzoom",
+            "type": "integer"
+          },
+          "minLOD": {
+            "title": "Minlod",
+            "type": "integer"
+          },
+          "maxLOD": {
+            "title": "Maxlod",
+            "type": "integer"
+          },
+          "resourceInfo": {
+            "$ref": "#/components/schemas/ResourceInfo"
+          },
+          "serviceItemId": {
+            "title": "Serviceitemid",
+            "type": "string"
+          }
+        }
+      },
+      "WurRaddVersions": {
+        "title": "WurRaddVersions",
+        "enum": [
+          "latest",
+          "v20220213",
+          "v20210627",
+          "v20220417",
+          "v20211205",
+          "v20211017",
+          "v20210725.1",
+          "v20210926",
+          "v20210919",
+          "v20220227",
+          "v20220116",
+          "v20211226",
+          "v20210829",
+          "v20220410",
+          "v20220130",
+          "v20211031",
+          "v20220123",
+          "v20211024",
+          "v20220403",
+          "v20220313",
+          "v20210704",
+          "v20210815",
+          "v20211212",
+          "v20211128",
+          "v20220306",
+          "v20210725",
+          "v20220109",
+          "v20210912",
+          "v20211114"
+        ],
+        "type": "string",
+        "description": "WUR RADD Alerts versions. When using `latest` call will be redirected (307) to version tagged as latest."
+      }
+    },
+    "securitySchemes": {
+      "APIKeyOriginHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Dynamic Vector Tiles",
+      "description": "\nDynamic vector tiles are generated on the fly.\nThe dynamic nature of the service allows users to apply filters using query parameters\nor to change tile resolution using the `@` operator after the `y` index\n"
+    },
+    {
+      "name": "Vector Tiles",
+      "description": "\nStatic vector tiles are pre-rendered for faster access. While performance for this tiles will be better,\nyou will not be able to filter data or change tile resolution.\nAny of this operations will have to happen on the frontend.\nIf tiles for a given zoom level are not present for a selected dataset,\nthe server will redirect the request to the dynamic service and will attempt to generate it here\n"
+    },
+    {
+      "name": "Raster Tiles",
+      "description": "\nStatic raster tiles are pre-rendered for faster access. While performance for this tiles will be better,\nyou will not be able to filter data or change tile resolution.\nAny of this operations will have to happen on the frontend.\nIf tiles for a given zoom level are not present for a selected dataset,\nthe server will redirect the request to the dynamic service and will attempt to generate it here\n"
+    },
+    {
+      "name": "ESRI Vector Tile Service",
+      "description": "\nESRI JS API requires tile to come from a ESRI VectorTileServer.\nThis endpoint mocks the responds of such server and routes the web client to the correct tiles.\n\nThe mocked Dynamic Vector Tile Server will also forward any query parameters in the URL to the tile cache.\nHowever, currently, ESRI JS API does not support the use of query parameters and removed them before making the request.\nHence this feature might not work in a ESRI applications.\n"
+    },
+    {
+      "name": "Tile Cache Preview",
+      "description": "\nMapbox GL based interactive map preview of vector or raster tile cache.\n"
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Vector Tiles API",
+      "tags": [
+        "Dynamic Vector Tiles",
+        "Vector Tiles"
+      ]
+    },
+    {
+      "name": "Raster Tiles API",
+      "tags": [
+        "Raster Tiles"
+      ]
+    },
+    {
+      "name": "ESRI Vector Tile Server API",
+      "tags": [
+        "ESRI Vector Tile Service"
+      ]
+    },
+    {
+      "name": "Map Preview",
+      "tags": [
+        "Tile Cache Preview"
+      ]
+    }
+  ]
+}

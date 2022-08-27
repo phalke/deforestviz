@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'main/styles/leaflet/leaflet.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'main/styles/date-range/styles.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'main/styles/date-range/default.css' %}"
+    />
+    <link rel="stylesheet" href="{% static 'main/styles/App.css' %}" />
+    <title>MAAP Visualizer</title>
+    <script defer="defer" src="{% static 'main/main.js' %}"></script>
+  </head>
+  <body>
+    {% csrf_token %}
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

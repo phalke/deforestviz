@@ -1,0 +1,20 @@
+affine==2.3.1
+asgiref==3.5.2
+attrs==22.1.0
+backports.zoneinfo==0.2.1
+certifi==2022.6.15
+click==8.1.3
+click-plugins==1.1.1
+cligj==0.7.2
+dj-database-url==1.0.0
+Django==4.0.6
+# django-heroku==0.3.1
+numpy==1.23.1
+opencv-python==4.6.0.66
+opencv-python-headless
+psycopg2==2.9.3
+pyparsing==3.0.9
+rasterio==1.3.0
+snuggs==1.4.7
+sqlparse==0.4.2
+whitenoise==6.2.0
